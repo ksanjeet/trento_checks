@@ -1,0 +1,84 @@
+id: "481552"
+name: hana_call_timeout
+group: Pacemaker
+description: |
+  HANA_CALL_TIMEOUT has correct value
+remediation: |
+  ## Abstract
+  HANA_CALL_TIMEOUT should have recommended value in cluster configuration. No configuration is also allowed as it will then use the default value.
+
+  ## Remediation
+
+  Edit the crm configuration and change the value for this parameter to 60.
+
+  ## References
+  AZURE:
+
+    - https://docs.microsoft.com/en-us/azure/virtual-machines/workloads/sap/high-availability-guide-suse-pacemaker
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/
+
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-config-sles
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/
+
+severity: warning
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+    - hana_scale_out
+  architecture_type: 
+    - angi
+    - classic
+
+facts:
+  - name: hana_call_timeout
+    gatherer: cibadmin
+    argument: cib.configuration.resources
+
+values:
+  - name: hana_call_timeout
+    default: 60      
+
+expectations:
+  - name: expectations_hana_call
+    expect: |
+        let hana_call = facts.hana_call_timeout;
+        let clones = hana_call.keys();
+        for  clone_type in clones {
+          if clone_type == "master" {
+            let hana_ct = hana_call.master;
+              for ms in hana_ct {
+              let msl = ms.primitive;
+                for prim in msl {
+                  if prim.type == "SAPHana" || prim.type == "SAPHanaController"  {
+                    let attr = prim.instance_attributes.nvpair.find(|aname| aname.name == "HANA_CALL_TIMEOUT");
+                    if attr == () || attr.value == values.hana_call_timeout {return true;}
+                  }
+                }
+              }
+          } else if clone_type == "clone" {
+            let hana_ct = hana_call.clone;
+            for cln in hana_ct {
+              let mst = cln.primitive;
+                for prim in mst {
+                  if prim.type == "SAPHana" || prim.type == "SAPHanaController"  {
+                  let attr = prim.instance_attributes.nvpair.find(|aname| aname.name == "HANA_CALL_TIMEOUT");
+                  if attr == () || attr.value == values.hana_call_timeout {return true;}
+                  }
+                }
+              }
+          }
+         }
+        
