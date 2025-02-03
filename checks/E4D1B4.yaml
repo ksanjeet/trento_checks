@@ -1,0 +1,69 @@
+id: "E4D1B4"
+name: SAPHanaTopology monitor interval has correct value
+group: Pacemaker
+description: |
+  SAPHanaTopology monitor interval has correct value
+remediation: |
+  ## Abstract
+  SAPHanaTopology monitor interval should have recommended value in cluster configuration. 
+
+  ## Remediation
+
+  Edit the crm configuration and change the value for this parameter to 50.
+
+  ## References
+  AZURE:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.10.4
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanatopology
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.10.4
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanatopology
+
+  GCP:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.10.4
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanatopology    
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.10.4
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanatopology    
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.10.4
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanatopology    
+
+severity: warning
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+    - hana_scale_out
+  architecture_type: angi
+
+facts:
+  - name: topo_monitor
+    gatherer: cibadmin
+    argument: cib.configuration.resources
+
+values:
+  - name: topo_interval
+    default: 50      
+
+expectations:
+  - name: expectations_topo_monitor_interval
+    expect: |
+          let hana_ct = facts.topo_monitor.clone;
+            for cln in hana_ct {
+              let topo = cln.primitive;
+                for prim in topo {
+                  if prim.type == "SAPHanaTopology" {
+                  let oper = prim.operations.op.find(|oname| oname.name == "monitor");
+                  if oper.interval == values.topo_interval {return true;}
+                  }
+                }
+              }            
