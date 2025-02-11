@@ -13,23 +13,16 @@ remediation: |
   ## Reference
   Azure:
 
-    - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability#implement-hana-hooks-saphanasr-and-suschksrv
-
   AWS:
 
   GCP:
 
   Nutanix:
 
-    - https://documentation.suse.com/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/#cha.s4s.hana-hook
-
   SUSE / KVM:
-
-    - https://documentation.suse.com/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/#cha.s4s.hana-hook
 
   VMware:
 
-    - https://documentation.suse.com/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/#cha.s4s.hana-hook
 
 severity: critical
 metadata:
