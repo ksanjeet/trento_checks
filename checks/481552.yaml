@@ -81,4 +81,5 @@ expectations:
               }
           }
          }
-        
+         
+    failure_message: The value of HANA_CALL_TIMEOUT configured is non-standard/non-default. Please verify if you really need to use this value.
