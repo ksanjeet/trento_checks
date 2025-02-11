@@ -15,7 +15,7 @@ remediation: |
   AZURE:
 
     - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.10.4
-    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanatopology
+    - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability?tabs=lb-portal%2Csaphanasr-angi#create-sap-hana-cluster-resources
 
   AWS:
 
@@ -24,8 +24,8 @@ remediation: |
 
   GCP:
 
-    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.10.4
-    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanatopology    
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-scaleout-config-sles#create_the_saphanatopology_primitive_resource
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-config-sles#create_the_saphanatopology_primitive_resource
 
   SUSE / KVM:
 
@@ -67,3 +67,4 @@ expectations:
                   }
                 }
               }            
+    failure_message: Interval for "Monitor" Operation for SAPHanaTopology resource is not set correctly              
