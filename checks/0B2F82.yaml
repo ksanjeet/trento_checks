@@ -10,19 +10,6 @@ remediation: |
   ## Remediation
   Install identical SAPHanaSR-angi version on all nodes of the cluster
 
-  ## Reference
-  Azure:
-
-  AWS:
-
-  GCP:
-
-  Nutanix:
-
-  SUSE / KVM:
-
-  VMware:
-
 
 severity: critical
 metadata:

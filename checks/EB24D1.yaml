@@ -46,8 +46,8 @@ metadata:
   architecture_type: angi
 
 facts:
-  - name: controller_is_clone
-    gatherer: cibadmin
+  - name: resources
+    gatherer: cibadmin@v1
     argument: cib.configuration.resources
 
 values:
@@ -57,14 +57,15 @@ values:
 expectations:
   - name: expectations_controller_is_clone
     expect: |
-            let hana_ct = facts.controller_is_clone.clone;
+            let hana_ct = facts.resources.clone;
             for cln in hana_ct {
               let mst = cln.primitive;
-                for prim in mst {
-                  if prim.type == "SAPHanaController"  {
+              for prim in mst {
+                if prim.type == "SAPHanaController"  {
                   let attr = cln.meta_attributes[0].nvpair.find(|aname| aname.name == "promotable");
                   if attr.value == values.promotable {return true;}
-                  }
-               }
-            }            
+                }
+              }
+            }
+            return false;            
     failure_message: The multi-state resource is either not configured as "clone" or the meta attribute "promotable" is not set to "true"            

@@ -41,7 +41,7 @@ metadata:
 
 facts:
   - name: resource_filesystem
-    gatherer: cibadmin
+    gatherer: cibadmin@v1
     argument: cib.configuration.resources
 
 values:
@@ -54,8 +54,9 @@ expectations:
             let hana_ct = facts.resource_filesystem.clone;
             for cln in hana_ct {
               let fil = cln.primitive;
-                for prim in fil {
-                    if prim.type == values.resource_type {return true;}       
-                }
+              for prim in fil {
+                if prim.type == values.resource_type {return true;}       
+              }
             }
+            return false;
     failure_message: SAPHanaFilesystem resource is not configured            
