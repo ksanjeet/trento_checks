@@ -46,8 +46,8 @@ metadata:
   architecture_type: angi
 
 facts:
-  - name: controller_configured
-    gatherer: cibadmin
+  - name: resources
+    gatherer: cibadmin@v1
     argument: cib.configuration.resources
 
 values:
@@ -57,11 +57,12 @@ values:
 expectations:
   - name: expectations_controller_configured
     expect: |
-          let hana_ct = facts.controller_configured.clone;
-            for cln in hana_ct {
-              let mst = cln.primitive;
-                for prim in mst {
-                  if prim.type == values.resource_type {return true;}                  
-                }
-              }            
+          let hana_ct = facts.resources.clone;
+          for cln in hana_ct {
+            let mst = cln.primitive;
+            for prim in mst {
+              if prim.type == values.resource_type {return true;}                  
+            }
+          }
+          return false;          
     failure_message: SAPHanaController resource is not configured              

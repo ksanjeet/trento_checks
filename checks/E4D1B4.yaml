@@ -46,25 +46,26 @@ metadata:
   architecture_type: angi
 
 facts:
-  - name: topo_monitor
-    gatherer: cibadmin
+  - name: topology_monitor
+    gatherer: cibadmin@v1
     argument: cib.configuration.resources
 
 values:
-  - name: topo_interval
+  - name: topology_interval
     default: 50      
 
 expectations:
-  - name: expectations_topo_monitor_interval
+  - name: expectations_topology_monitor_interval
     expect: |
-          let hana_ct = facts.topo_monitor.clone;
-            for cln in hana_ct {
-              let topo = cln.primitive;
-                for prim in topo {
-                  if prim.type == "SAPHanaTopology" {
-                  let oper = prim.operations.op.find(|oname| oname.name == "monitor");
-                  if oper.interval == values.topo_interval {return true;}
-                  }
-                }
-              }            
+          let hana_ct = facts.topology_monitor.clone;
+          for cln in hana_ct {
+            let topo = cln.primitive;
+            for prim in topo {
+              if prim.type == "SAPHanaTopology" {
+                let oper = prim.operations.op.find(|oname| oname.name == "monitor");
+                if oper.interval == values.topology_interval {return true;}
+              }
+            }
+          }
+          return false;          
     failure_message: Interval for "Monitor" Operation for SAPHanaTopology resource is not set correctly              
