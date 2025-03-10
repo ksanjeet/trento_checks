@@ -9,10 +9,10 @@ remediation: |
 
   ## Remediation
 
-  Edit the crm configuration and change the values of roles as per the best parctices.
+  Edit the crm configuration and change the values of roles as per the best practices.
 
   ## References
-  AZURE:
+  Azure:
 
     - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.12.3
     - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability?tabs=lb-portal%2Csaphanasr-angi#create-sap-hana-cluster-resources
@@ -62,18 +62,18 @@ values:
 expectations:
   - name: expectations_controller_roles
     expect: |
-          let hana_ct = facts.controller_roles.clone;
-          for cln in hana_ct {
-            let cont = cln.primitive;
-            for prim in cont {
-              if prim.type == "SAPHanaController" {
-                let oper60 = prim.operations.op.find(|oname| oname.name == "monitor" && oname.interval == 60);
-                if oper60 == () {return false};
-                let oper61 = prim.operations.op.find(|oname| oname.name == "monitor" && oname.interval == 61);
-                if oper61 == () {return false};
-                if oper60.role == values.promoted_role && oper61.role == values.unpromoted_role {return true;}
-              }
+        let hana_ct = facts.controller_roles.clone;
+        for cln in hana_ct {
+          let cont = cln.primitive;
+          for prim in cont {
+            if prim.type == "SAPHanaController" {
+              let oper60 = prim.operations.op.find(|oname| oname.name == "monitor" && oname.interval == 60);
+              if oper60 == () {return false};
+              let oper61 = prim.operations.op.find(|oname| oname.name == "monitor" && oname.interval == 61);
+              if oper61 == () {return false};
+              if oper60.role == values.promoted_role && oper61.role == values.unpromoted_role {return true;}
             }
           }
-          return false;
+        }
+        return false;
     failure_message:  Roles configured for SAPHanaController Monitor Operations are not correct              

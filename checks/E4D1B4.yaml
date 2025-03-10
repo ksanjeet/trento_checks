@@ -12,7 +12,7 @@ remediation: |
   Edit the crm configuration and change the value for this parameter to 50.
 
   ## References
-  AZURE:
+  Azure:
 
     - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.10.4
     - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability?tabs=lb-portal%2Csaphanasr-angi#create-sap-hana-cluster-resources

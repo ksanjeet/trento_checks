@@ -5,13 +5,13 @@ description: |
   SAPHanaFilesystem resource is configured
 remediation: |
   ## Abstract
-  SAPHanaFilesystem resource should be configured especially for hana_scale_out clusters. So, that problems with HANA filesystem can be monitored and remediative steps can be taken by cluster if the resource is hung due to the fileystem unavailability.
+  SAPHanaFilesystem resource should be configured especially for hana_scale_out clusters. So, that problems with HANA filesystem can be monitored and remediative steps can be taken by the cluster if the resource is hung due to the fileystem unavailability.
   ## Remediation
 
   Configure SAPHanaFilesystem resource.
 
   ## References
-  AZURE:
+  Azure:
 
     - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability?tabs=lb-portal%2Csaphanasr-angi
 
@@ -46,6 +46,7 @@ facts:
 
 values:
   - name: resource_type
+    customization_disabled: true
     default: "SAPHanaFilesystem"      
 
 expectations:
