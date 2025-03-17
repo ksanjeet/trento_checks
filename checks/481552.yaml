@@ -64,8 +64,6 @@ expectations:
           clones = resources.clone;
         }
 
-
-
         let masters_and_clones = masters + clones;
         if is_empty(masters_and_clones) {
           return false;
@@ -75,7 +73,7 @@ expectations:
           for primitive in resource_group.primitive {
             if primitive.type == "SAPHana" || primitive.type == "SAPHanaController" {
               let attr = primitive.instance_attributes.nvpair.find(|nvpair| nvpair.name == "HANA_CALL_TIMEOUT");
-              if attr == () || attr.value == 60 {return true;}
+              if attr == () || attr.value == values.expected_hana_call_timeout {return true;}
             }
           }
         }
