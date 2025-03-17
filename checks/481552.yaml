@@ -42,7 +42,7 @@ metadata:
     - classic
 
 facts:
-  - name: cluster_resources
+  - name: resources
     gatherer: cibadmin@v1
     argument: cib.configuration.resources
 
@@ -53,37 +53,31 @@ values:
 expectations:
   - name: expectations_hana_call
     expect: |
-        let resources = facts.cluster_resources;
-        if "clone" !in resources {
+        let resources = facts.resources;
+        let masters = [];
+        let clones = [];
+
+        if "master" in resources {
+          masters = resources.master;
+        }
+        if "clone" in resources {
+          clones = resources.clone;
+        }
+
+
+
+        let masters_and_clones = masters + clones;
+        if is_empty(masters_and_clones) {
           return false;
         }
 
-        let clones = resources.keys();
-        for  clone_type in clones {
-          if clone_type == "master" {
-            let hana_ct = hana_call.master;
-            for ms in hana_ct {
-              let msl = ms.primitive;
-              for prim in msl {
-                if prim.type == "SAPHana" || prim.type == "SAPHanaController"  {
-                  let attr = prim.instance_attributes.nvpair.find(|aname| aname.name == "HANA_CALL_TIMEOUT");
-                  if attr == () || attr.value == values.expected_hana_call_timeout {return true;}
-                }
-              }
-            }
-          } else if clone_type == "clone" {
-            let hana_ct = hana_call.clone;
-            for cln in hana_ct {
-              let mst = cln.primitive;
-              for prim in mst {
-                if prim.type == "SAPHana" || prim.type == "SAPHanaController"  {
-                  let attr = prim.instance_attributes.nvpair.find(|aname| aname.name == "HANA_CALL_TIMEOUT");
-                  if attr == () || attr.value == values.expected_hana_call_timeout {return true;}
-                }
-              }
+        for resource_group in masters_and_clones {
+          for primitive in resource_group.primitive {
+            if primitive.type == "SAPHana" || primitive.type == "SAPHanaController" {
+              let attr = primitive.instance_attributes.nvpair.find(|nvpair| nvpair.name == "HANA_CALL_TIMEOUT");
+              if attr == () || attr.value == 60 {return true;}
             }
           }
-         }
-         return false;
-
+        }
+        return false;
     failure_message: The value of HANA_CALL_TIMEOUT configured is non-standard/non-default. Please verify if you really need to use this value.
