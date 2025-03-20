@@ -1,0 +1,72 @@
+id: "EB24D1"
+name: SAPHanaController is configured as Clone
+group: Pacemaker
+description: |
+  SAPHanaController is configured as Clone with Promotable set to true
+remediation: |
+  ## Abstract
+  SAPHanaController is configured as Clone
+
+  ## Remediation
+
+  Edit the crm configuration and change it as per the best practice guide
+
+  ## References
+  Azure:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.12.3
+    - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability?tabs=lb-portal%2Csaphanasr-angi
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.12.3
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanacontroller
+
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-scaleout-config-sles#sles-for-sap-15-sp6-or-later_5
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-config-sles#sles-for-sap-15-sp6-or-later_3
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.12.3
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanacontroller
+                  
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.1
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanacontroller
+
+severity: critical
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+    - hana_scale_out
+  architecture_type: angi
+
+facts:
+  - name: resources
+    gatherer: cibadmin@v1
+    argument: cib.configuration.resources
+
+values:
+  - name: promotable
+    customization_disabled: true
+    default: true
+
+expectations:
+  - name: expectations_controller_is_clone
+    expect: |
+            let hana_ct = facts.resources.clone;
+            for cln in hana_ct {
+              let mst = cln.primitive;
+              for prim in mst {
+                if prim.type == "SAPHanaController"  {
+                  let attr = cln.meta_attributes[0].nvpair.find(|aname| aname.name == "promotable");
+                  if attr.value == values.promotable {return true;}
+                }
+              }
+            }
+            return false;            
+    failure_message: The multi-state resource is either not configured as "clone" or the meta attribute "promotable" is not set to "true"            

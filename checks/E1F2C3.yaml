@@ -1,0 +1,79 @@
+id: "E1F2C3"
+name: SAPHanaController roles correctly configured
+group: Pacemaker
+description: |
+  SAPHanaController roles correctly configured
+remediation: |
+  ## Abstract
+  SAPHanaController roles should be configured as "Promoted" and "Unpromoted" and not as "Master" and "Slave".
+
+  ## Remediation
+
+  Edit the crm configuration and change the values of roles as per the best practices.
+
+  ## References
+  Azure:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.12.3
+    - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability?tabs=lb-portal%2Csaphanasr-angi#create-sap-hana-cluster-resources
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.12.3
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanacontroller  
+
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-scaleout-config-sles#sles-for-sap-15-sp6-or-later
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-config-sles#create_the_saphana_or_saphanacontroller_primitive_resource
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.12.3
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanacontroller   
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.12.3
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanacontroller
+
+
+severity: critical
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+    - hana_scale_out
+  architecture_type: angi
+
+facts:
+  - name: controller_roles
+    gatherer: cibadmin@v1
+    argument: cib.configuration.resources
+
+values:
+  - name: promoted_role
+    customization_disabled: true  
+    default: "Promoted"
+  - name: unpromoted_role
+    customization_disabled: true  
+    default: "Unpromoted"
+
+expectations:
+  - name: expectations_controller_roles
+    expect: |
+        let hana_ct = facts.controller_roles.clone;
+        for cln in hana_ct {
+          let cont = cln.primitive;
+          for prim in cont {
+            if prim.type == "SAPHanaController" {
+              let oper60 = prim.operations.op.find(|oname| oname.name == "monitor" && oname.interval == 60);
+              if oper60 == () {return false};
+              let oper61 = prim.operations.op.find(|oname| oname.name == "monitor" && oname.interval == 61);
+              if oper61 == () {return false};
+              if oper60.role == values.promoted_role && oper61.role == values.unpromoted_role {return true;}
+            }
+          }
+        }
+        return false;
+    failure_message:  Roles configured for SAPHanaController Monitor Operations are not correct              

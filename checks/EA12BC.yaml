@@ -1,0 +1,69 @@
+id: "EA12BC"
+name: SAPHanaController resource is configured
+group: Pacemaker
+description: |
+  SAPHanaController resource is configured even for Scale-Up
+remediation: |
+  ## Abstract
+  SAPHanaController resource is configured even for Scale-Up
+
+  ## Remediation
+
+  Edit the crm configuration and make changes as per the best practice guide
+
+  ## References
+  Azure:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.12.3
+    - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability?tabs=lb-portal%2Csaphanasr-angi
+    
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.12.3
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanacontroller
+  
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-scaleout-config-sles#sles-for-sap-15-sp6-or-later_5
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-config-sles#sles-for-sap-15-sp6-or-later_3
+    
+  SUSE / KVM: 
+            
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.12.3
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanacontroller
+                  
+  Nutanix:        
+                  
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.12.3
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanacontroller
+
+severity: critical
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+    - hana_scale_out
+  architecture_type: angi
+
+facts:
+  - name: resources
+    gatherer: cibadmin@v1
+    argument: cib.configuration.resources
+
+values:
+  - name: resource_type
+    customization_disabled: true
+    default: "SAPHanaController"
+
+expectations:
+  - name: expectations_controller_configured
+    expect: |
+          let hana_ct = facts.resources.clone;
+          for cln in hana_ct {
+            let mst = cln.primitive;
+            for prim in mst {
+              if prim.type == values.resource_type {return true;}                  
+            }
+          }
+          return false;          
+    failure_message: SAPHanaController resource is not configured              

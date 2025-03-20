@@ -1,0 +1,71 @@
+id: "E4D1B4"
+name: SAPHanaTopology monitor interval has correct value
+group: Pacemaker
+description: |
+  SAPHanaTopology monitor interval has correct value
+remediation: |
+  ## Abstract
+  SAPHanaTopology monitor interval should have recommended value in cluster configuration. 
+
+  ## Remediation
+
+  Edit the crm configuration and change the value for this parameter to 50.
+
+  ## References
+  Azure:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.10.4
+    - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability?tabs=lb-portal%2Csaphanasr-angi#create-sap-hana-cluster-resources
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.10.4
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanatopology
+
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-scaleout-config-sles#create_the_saphanatopology_primitive_resource
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-config-sles#create_the_saphanatopology_primitive_resource
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.10.4
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanatopology    
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-1.11.7.10.4
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-perfopt-15/index.html#id-saphanatopology    
+
+severity: warning
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+    - hana_scale_out
+  architecture_type: angi
+
+facts:
+  - name: topology_monitor
+    gatherer: cibadmin@v1
+    argument: cib.configuration.resources
+
+values:
+  - name: topology_interval
+    default: 50      
+
+expectations:
+  - name: expectations_topology_monitor_interval
+    expect: |
+          let hana_ct = facts.topology_monitor.clone;
+          for cln in hana_ct {
+            let topo = cln.primitive;
+            for prim in topo {
+              if prim.type == "SAPHanaTopology" {
+                let oper = prim.operations.op.find(|oname| oname.name == "monitor");
+                if oper.interval == values.topology_interval {return true;}
+              }
+            }
+          }
+          return false;          
+    failure_message: Interval for "Monitor" Operation for SAPHanaTopology resource is not set correctly              

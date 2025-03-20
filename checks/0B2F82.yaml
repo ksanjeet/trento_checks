@@ -1,0 +1,30 @@
+id: "0B2F82"
+name: SAPHanaSR-angi version identical on all nodes
+group: OS and package versions
+description: |
+  Installed SAPHanaSR-angi version is identical on all nodes
+remediation: |
+  ## Abstract
+  Installed SAPHanaSR-angi version must be identical on all nodes of the cluster
+
+  ## Remediation
+  Install identical SAPHanaSR-angi version on all nodes of the cluster
+
+
+severity: critical
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+    - hana_scale_out
+  architecture_type: angi
+
+facts:
+  - name: installed_angi_version
+    gatherer: package_version@v1
+    argument: SAPHanaSR-angi
+
+expectations:
+  - name: angi_version_identical
+    expect_same: facts.installed_angi_version[0].version
+    failure_message: Installed SAPHanaSR-angi version is expected to be identical on all nodes, but differs

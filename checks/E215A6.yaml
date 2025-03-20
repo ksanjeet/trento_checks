@@ -1,0 +1,63 @@
+id: "E215A6"
+name: SAPHanaFilesystem resource configured
+group: Pacemaker
+description: |
+  SAPHanaFilesystem resource is configured
+remediation: |
+  ## Abstract
+  SAPHanaFilesystem resource should be configured especially for hana_scale_out clusters. So, that problems with HANA filesystem can be monitored and remediative steps can be taken by the cluster if the resource is hung due to the fileystem unavailability.
+  ## Remediation
+
+  Configure SAPHanaFilesystem resource.
+
+  ## References
+  Azure:
+
+    - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability?tabs=lb-portal%2Csaphanasr-angi
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-saphanafilesystem
+
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-scaleout-config-sles#create_the_saphanafilesystem_primitive_resource
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-saphanafilesystem
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-angi-scaleout-perfopt-15/index.html#id-saphanafilesystem
+
+severity: warning
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+    - hana_scale_out
+  architecture_type: angi
+
+facts:
+  - name: resource_filesystem
+    gatherer: cibadmin@v1
+    argument: cib.configuration.resources
+
+values:
+  - name: resource_type
+    customization_disabled: true
+    default: "SAPHanaFilesystem"      
+
+expectations:
+  - name: expectations_resource_filesystem
+    expect: |
+            let hana_ct = facts.resource_filesystem.clone;
+            for cln in hana_ct {
+              let fil = cln.primitive;
+              for prim in fil {
+                if prim.type == values.resource_type {return true;}       
+              }
+            }
+            return false;
+    failure_message: SAPHanaFilesystem resource is not configured            

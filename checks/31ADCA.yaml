@@ -1,0 +1,28 @@
+id: "31ADCA"
+name: supported SAPHanaSR-angi version 
+group: OS and package versions
+description: |
+  SAPHanaSR-angi version is supported
+remediation: |
+  ## Abstract
+  Installed SAPHanaSR-angi version must be equal or higher than the recommended value
+  ## Remediation
+  Install or upgrade to a supported SAPHanaSR-angi version
+
+severity: critical
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+    - hana_scale_out
+  architecture_type: angi
+
+facts:
+  - name: compare_angi_version
+    gatherer: package_version@v1
+    argument: SAPHanaSR-angi,1.2.5
+
+expectations:
+  - name: expectations_angi_version
+    expect: facts.compare_angi_version < 1
+    failure_message: The installed SAPHanaSR-angi version is older than the recommended version (1.2.5)
