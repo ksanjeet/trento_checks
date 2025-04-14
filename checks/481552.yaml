@@ -40,6 +40,9 @@ metadata:
   architecture_type: 
     - angi
     - classic
+  hana_scenario:
+    - performance_optimized
+    - cost_optimized    
 
 facts:
   - name: resources

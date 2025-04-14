@@ -39,7 +39,9 @@ metadata:
     - hana_scale_up
     - hana_scale_out
     - ascs_ers
-  hana_scenario: performance_optimized
+  hana_scenario: 
+    - performance_optimized
+    - cost_optimized
   provider: [azure, nutanix, kvm, vmware]
 
 facts:

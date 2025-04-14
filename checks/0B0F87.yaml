@@ -35,7 +35,9 @@ remediation: |
 metadata:
   target_type: cluster
   cluster_type: hana_scale_up
-  hana_scenario: performance_optimized
+  hana_scenario: 
+    - performance_optimized
+    - cost_optimized
   architecture_type: classic
 
 facts:
