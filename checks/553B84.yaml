@@ -1,0 +1,69 @@
+id: "553B84"
+name: SAPHanaTopology resource is configured
+group: Pacemaker
+description: |
+  SAPHanaTopology resource is configured and with correct provider i.e. SUSE 
+remediation: |
+  ## Abstract
+  This Trento check verified if SAPHanaTopoloy resource is configured and not missing. It also checks whether the RA provider is SUSE and not say for example heartbeat or anything else.
+
+  ## Remediation
+
+  Edit the crm configuration and make changes as per the best practice guide
+
+  ## References
+  Azure:
+
+    - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability?tabs=lb-portal%2Csaphanasr#tabpanel_5_saphanasr
+    
+  AWS:
+
+    - https://docs.aws.amazon.com/sap/latest/sap-hana/sap-hana-on-aws-saphanatopology.html
+  
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-config-sles#sles-for-sap-15-sp5-or-earlier
+    
+  SUSE / KVM: 
+            
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-sr-guide-PerfOpt-15/index.html#id-saphanatopology
+                  
+  Nutanix:        
+                  
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-sr-guide-PerfOpt-15/index.html#id-saphanatopology
+
+severity: critical
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+  architecture_type: classic
+  hana_scenario:
+    - performance_optimized
+    - cost_optimized  
+
+facts:
+  - name: resources
+    gatherer: cibadmin@v1
+    argument: cib.configuration.resources
+
+values:
+  - name: resource_provider
+    customization_disabled: true
+    default: "suse"
+  - name: resource_type
+    customization_disabled: true
+    default: "SAPHanaTopology"
+
+expectations:
+  - name: expectations_topology_configured
+    expect: |
+          let hana_ct = facts.resources.clone;
+          for cln in hana_ct {
+            let rsc = cln.primitive;
+            for prim in rsc {
+              if prim.provider == values.resource_provider && prim.type == values.resource_type {return true;}                  
+            }
+          }
+          return false;          
+    failure_message: SAPHanaTopology resource is not correctly configured

@@ -1,0 +1,66 @@
+id: "553B89"
+name: SAPHanaTopology clone resource has interleave correctly configured
+group: Pacemaker
+description: |
+  SAPHanaTopology clone resource has interleave correctly configured
+remediation: |
+  ## Abstract
+  SAPHanaTopology clone resource has interleave correctly configured and not missing. 
+
+  ## Remediation
+
+  Edit the crm configuration and make changes as per the best practice guide
+
+  ## References
+  Azure:
+
+    - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability?tabs=lb-portal%2Csaphanasr#tabpanel_6_saphanasr
+    
+  AWS:
+
+    - https://docs.aws.amazon.com/sap/latest/sap-hana/sap-hana-on-aws-saphana.html
+  
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-config-sles#sles-for-sap-15-sp5-or-earlier
+    
+  SUSE / KVM: 
+            
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-sr-guide-PerfOpt-15/index.html#id-saphana
+                  
+  Nutanix:        
+                  
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-sr-guide-PerfOpt-15/index.html#id-saphana
+
+severity: critical
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+  architecture_type: classic
+  hana_scenario:
+    - performance_optimized
+    - cost_optimized  
+
+facts:
+  - name: resources
+    gatherer: cibadmin@v1
+    argument: cib.configuration.resources
+
+values:
+  - name: interleave
+    customization_disabled: true
+    default: true
+
+expectations:
+  - name: expectations_interleave
+    expect: |
+          let hana_ct = facts.resources.clone;
+          for cln in hana_ct {
+              for ma in cln.meta_attributes {
+                let cnx = ma.nvpair.find(|item| item.name == "interleave");
+                if cnx.value == values.interleave {return true};
+              }
+            }
+          return false;          
+    failure_message: SAPHana multi-state resource has interleave not correctly configured

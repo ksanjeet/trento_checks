@@ -1,0 +1,84 @@
+id: "AE0C68"
+name: default_primary_timeout
+group: Pacemaker
+description: |
+  DUPLICATE_PRIMARY_TIMEOUT has correct value
+remediation: |
+  ## Abstract
+  DUPLICATE_PRIMARY_TIMEOUT should have recommended value in cluster configuration. 
+
+  ## Remediation
+  Edit the crm configuration and change the value for this parameter to 7200.
+
+  ## References
+  AZURE:
+
+    - https://docs.microsoft.com/en-us/azure/virtual-machines/workloads/sap/high-availability-guide-suse-pacemaker
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/
+
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-config-sles
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/
+
+severity: critical
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+    - hana_scale_out
+  architecture_type: 
+    - angi
+    - classic
+  hana_scenario:
+    - performance_optimized
+    - cost_optimized    
+
+facts:
+  - name: resources
+    gatherer: cibadmin@v1
+    argument: cib.configuration.resources
+
+values:
+  - name: expected_default_primary_timeout
+    default: 7200      
+
+expectations:
+  - name: expectations_default_primary
+    expect: |
+        let resources = facts.resources;
+        let masters = [];
+        let clones = [];
+
+        if "master" in resources {
+          masters = resources.master;
+        }
+        if "clone" in resources {
+          clones = resources.clone;
+        }
+
+        let masters_and_clones = masters + clones;
+        if is_empty(masters_and_clones) {
+          return false;
+        }
+
+        for resource_group in masters_and_clones {
+          for primitive in resource_group.primitive {
+            if primitive.type == "SAPHana" || primitive.type == "SAPHanaController" {
+              let attr = primitive.instance_attributes.nvpair.find(|nvpair| nvpair.name == "DUPLICATE_PRIMARY_TIMEOUT");
+              if attr == () || attr.value == values.expected_default_primary_timeout {return true;}
+            }
+          }
+        }
+        return false;
+    failure_message: The value of DUPLICATE_PRIMARY_TIMEOUT configured is non-standard/non-default. 

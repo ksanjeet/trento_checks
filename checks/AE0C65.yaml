@@ -1,0 +1,70 @@
+id: "AE0C65"
+name: SAPHana resource has stop timeout correctly configured 
+group: Pacemaker
+description: |
+  SAPHana resource has stop timeout correctly configured 
+remediation: |
+  ## Abstract
+  This Trento check verified if SAPHana resource has stop timeout correctly configured and the configuration is not missing. 
+
+  ## Remediation
+
+  Edit the crm configuration and make changes as per the best practice guide
+
+  ## References
+  Azure:
+
+    - https://learn.microsoft.com/en-us/azure/sap/workloads/sap-hana-high-availability?tabs=lb-portal%2Csaphanasr#tabpanel_5_saphanasr
+    
+  AWS:
+
+    - https://docs.aws.amazon.com/sap/latest/sap-hana/sap-hana-on-aws-saphana.html
+  
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-config-sles#sles-for-sap-15-sp5-or-earlier
+    
+  SUSE / KVM: 
+            
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-sr-guide-PerfOpt-15/index.html#id-saphanatopology
+                  
+  Nutanix:        
+                  
+    - https://documentation.suse.com/sbp/sap-15/html/SLES4SAP-hana-sr-guide-PerfOpt-15/index.html#id-saphanatopology
+
+severity: critical
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+  architecture_type: classic
+  hana_scenario:
+    - performance_optimized
+    - cost_optimized  
+
+facts:
+  - name: resources
+    gatherer: cibadmin@v1
+    argument: cib.configuration.resources
+
+values:
+  - name: stop_timeout
+    customization_disabled: true
+    default: 3600
+
+expectations:
+  - name: expectations_stop_timeout_configured
+    expect: |
+          let hana_ct = facts.resources.master;
+          for cln in hana_ct {
+            let rsc = cln.primitive;
+            for prim in rsc {
+              if prim.type == "SAPHana" {
+                let op = prim.operations.op.find(|oname| oname.name == "stop");
+                if op == () {return false};
+                if op.timeout == values.stop_timeout {return true;}
+              }
+             }                  
+            }
+          return false;          
+    failure_message: SAPHana resource has stop timeout not correctly configured

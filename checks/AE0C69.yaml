@@ -1,0 +1,89 @@
+id: "AE0C69"
+name: prefer_site_takeover
+group: Pacemaker
+description: |
+  PREFER_SITE_TAKEOVER has correct value
+remediation: |
+  ## Abstract
+  PREFER_SITE_TAKEOVER should have recommended value in cluster configuration. 
+
+  ## Remediation
+  Edit the crm configuration and change the value for this parameter to as per best practices recommendation.
+
+  ## References
+  AZURE:
+
+    - https://docs.microsoft.com/en-us/azure/virtual-machines/workloads/sap/high-availability-guide-suse-pacemaker
+
+  AWS:
+
+    - https://documentation.suse.com/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/
+
+  GCP:
+
+    - https://cloud.google.com/solutions/sap/docs/sap-hana-ha-config-sles
+
+  SUSE / KVM:
+
+    - https://documentation.suse.com/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/
+
+  Nutanix:
+
+    - https://documentation.suse.com/sbp/all/single-html/SLES4SAP-hana-sr-guide-PerfOpt-15/
+
+severity: critical
+metadata:
+  target_type: cluster
+  cluster_type: 
+    - hana_scale_up
+    - hana_scale_out
+  architecture_type: 
+    - angi
+    - classic
+  hana_scenario:
+    - performance_optimized
+    - cost_optimized    
+
+facts:
+  - name: resources
+    gatherer: cibadmin@v1
+    argument: cib.configuration.resources
+
+values:
+  - name: expected_prefer_site_takeover
+    default: true
+    conditions:
+      - value: true
+        when: env.hana_scenario == "performance_optimized"
+      - value: false
+        when: env.hana_scenario == "cost_optimized"    
+
+expectations:
+  - name: expectations_prefer_site_takeover
+    expect: |
+        let resources = facts.resources;
+        let masters = [];
+        let clones = [];
+
+        if "master" in resources {
+          masters = resources.master;
+        }
+        if "clone" in resources {
+          clones = resources.clone;
+        }
+
+        let masters_and_clones = masters + clones;
+        if is_empty(masters_and_clones) {
+          return false;
+        }
+
+        for resource_group in masters_and_clones {
+          for primitive in resource_group.primitive {
+            if primitive.type == "SAPHana" || primitive.type == "SAPHanaController" {
+              let attr = primitive.instance_attributes.nvpair.find(|nvpair| nvpair.name == "PREFER_SITE_TAKEOVER");
+              if attr == () || attr.value == values.expected_prefer_site_takeover {return true;}
+            }
+          }
+        }
+        return false;
+    failure_message: The value of PREFER_SITE_TAKEOVER configured is non-standard/non-default. 
