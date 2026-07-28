@@ -88,4 +88,4 @@ expectations:
         if result == () { return false; }
       }
       return true;
-    failure_message: At least one ${values.resource_type} resource does not have correct priority ${values.resource_priority}
+    failure_message: At least one ${values.resource_type} resource does not have correct priority ${values.resource_priority_ascs}
