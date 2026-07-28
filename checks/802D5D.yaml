@@ -107,7 +107,7 @@ expectations:
     expect: |
       let sids = facts.cluster_sids.keys();
       if !facts.cib_configuration.contains("resources") { return false; }
-      if !facts.cib_configuration.resources.contains("primitives") { return true; } // primitive does not exist
+      if !facts.cib_configuration.resources.contains("primitive") { return true; } // primitive does not exist
       for sid in sids {
         let inst = facts.cluster_sids[sid].instances.find(|i| i.name == `ERS${i.instance_number}`);
         if inst == () { return false; }
@@ -141,7 +141,7 @@ expectations:
     expect: |
       let sids = facts.cluster_sids.keys();
       if !facts.cib_configuration.contains("resources") { return false; }
-      if !facts.cib_configuration.resources.contains("primitives") { return true; } // primitive does not exist
+      if !facts.cib_configuration.resources.contains("primitive") { return true; } // primitive does not exist
       for sid in sids {
         let inst = facts.cluster_sids[sid].instances.find(|i| i.name == `ERS${i.instance_number}`);
         if inst == () { return false; }
